@@ -1,5 +1,10 @@
+
+# Name: Vlad-Alexandru Velicu
+# SID: 201348604
+
 from csv import reader
 import numpy as np
+import copy
 
 def load_data(file):
     dataset = list()
@@ -26,12 +31,13 @@ def convert_classes_to_binary(dataset):
     return dataset
 
 def convert_classes_to_binary_multiclass(class_name, dataset):
-    for i in range(len(dataset)):
-        if(dataset[i][-1] == class_name):
-            dataset[i][-1] = 1
+    clone = copy.deepcopy(dataset)
+    for i in range(len(clone)):
+        if(clone[i][-1] == class_name):
+            clone[i][-1] = 1
         else: 
-            dataset[i][-1] = -1
-    return dataset
+            clone[i][-1] = -1
+    return clone
 
 def split_data_based_on_class(dataset):
     datasets = {'class-1': [], 'class-2': [], 'class-3': []}
@@ -141,82 +147,82 @@ def run_binary_perceptron(split_train_dataset, split_test_dataset, training_epoc
     print('=========================================================')
     print('Training perceptron to discriminate between class 1 and class 2')
     train_data_split_1 = convert_classes_to_binary(split_train_dataset['class-1'] + split_train_dataset['class-2']) 
-    np.random.shuffle(train_data_split_1)
     bias_1, weights_1 = train_binary(train_data_split_1, training_epochs)
 
     test_data_split_1 = convert_classes_to_binary(split_test_dataset['class-1'] + split_test_dataset['class-2'])
-    np.random.shuffle(test_data_split_1)
     print("Test accuracy: %d%%" % test_binary(test_data_split_1, weights_1, bias_1))
     print('=========================================================')
 
     print('Training perceptron to discriminate between class 2 and class 3')
     train_data_split_2 = convert_classes_to_binary(split_train_dataset['class-2'] + split_train_dataset['class-3']) 
-    np.random.shuffle(train_data_split_2)
     bias_2, weights_2 = train_binary(train_data_split_2, training_epochs)
 
     test_data_split_2 = convert_classes_to_binary(split_test_dataset['class-2'] + split_test_dataset['class-3'])
-    np.random.shuffle(test_data_split_2)
     print("Test accuracy: %d%%" % test_binary(test_data_split_2, weights_2, bias_2))
     print('=========================================================')
 
     print('Training perceptron to discriminate between class 1 and class 3')
     train_data_split_3 = convert_classes_to_binary(split_train_dataset['class-1'] + split_train_dataset['class-3']) 
-    np.random.shuffle(train_data_split_3)
     bias_3, weights_3 = train_binary(train_data_split_3, training_epochs)
 
     test_data_split_3 = convert_classes_to_binary(split_test_dataset['class-1'] + split_test_dataset['class-3'])
-    np.random.shuffle(test_data_split_3)
     print("Test accuracy: %d%%" % test_binary(test_data_split_3, weights_3, bias_3))
     print('=========================================================')
 
-def run_multiclass_perceptron(train_dataset, split_train_data, split_test_data, training_epochs, regularisation=0):
+def run_multiclass_perceptron(train_dataset, split_train_dataset, split_test_dataset, training_epochs, regularisation=0):
     print('=========================================================')
     print('Training perceptron to discriminate between class 1 and the rest')
     print('Training perceptron to discriminate between class 2 and the rest')
     print('Training perceptron to discriminate between class 3 and the rest')
-    convert_1 = convert_classes_to_binary_multiclass('class-1', train_dataset)
-    np.random.shuffle(convert_1)
 
-    convert_2 = convert_classes_to_binary_multiclass('class-2',train_dataset)
-    np.random.shuffle(convert_2)
+    convert_1 = convert_classes_to_binary_multiclass('class-1', train_dataset)
+
+    convert_2 = convert_classes_to_binary_multiclass('class-2', train_dataset)
 
     convert_3 = convert_classes_to_binary_multiclass('class-3', train_dataset)
-    np.random.shuffle(convert_3)
-    
+
     bias, weights = train_multiclass(convert_1,  convert_2, convert_3, training_epochs, regularisation)
     print('=========================================================')
- 
-    np.random.shuffle(train_dataset)
 
-    print("Accuracy for the whole Train dataset: %d%%" % test_multiclass(split_train_data, weights, bias))
-    print("Accuracy for the whole Test dataset: %d%%" %   test_multiclass(split_test_data, weights, bias))
+    print("Accuracy for the whole Train dataset: %d%%" % test_multiclass(split_train_dataset, weights, bias))
+    print("Accuracy for the whole Test dataset: %d%%" %   test_multiclass(split_test_dataset, weights, bias))
    
     print('=========================================================')
 
 
-train_data = convert_strings_to_floats(load_data('train.data'))
-split_train_data = split_data_based_on_class(train_data)
-
-test_data = convert_strings_to_floats(load_data('test.data'))
-split_test_data = split_data_based_on_class(test_data)
-
 print('\nQuestion 3')
-run_binary_perceptron(split_train_data, split_test_data, 20)
+train_dataset_q3 = convert_strings_to_floats(load_data('train.data'))
+np.random.shuffle(train_dataset_q3)
+split_train_dataset_q3 = split_data_based_on_class(train_dataset_q3)
+
+test_dataset_q3 = convert_strings_to_floats(load_data('test.data'))
+np.random.shuffle(test_dataset_q3)
+split_test_dataset_q3 = split_data_based_on_class(test_dataset_q3)
+
+run_binary_perceptron(split_train_dataset_q3, split_test_dataset_q3, 20)
 
 print('\nQuestion 4')
-run_multiclass_perceptron(train_data, split_train_data, split_test_data, 20)
+train_dataset_q4 = convert_strings_to_floats(load_data('train.data'))
+np.random.shuffle(train_dataset_q4)
+split_train_dataset_q4 = split_data_based_on_class(train_dataset_q4)
+
+test_dataset_q4 = convert_strings_to_floats(load_data('test.data'))
+np.random.shuffle(test_dataset_q4)
+split_test_dataset_q4 = split_data_based_on_class(test_dataset_q4)
+
+run_multiclass_perceptron(train_dataset_q4, split_train_dataset_q4, split_test_dataset_q4, 20)
 
 print('\nQuestion 5')
 print('Regularisation 0.01')
-run_multiclass_perceptron(train_data, split_train_data, split_test_data, 20, 0.01)
+run_multiclass_perceptron(train_dataset_q4, split_train_dataset_q4, split_test_dataset_q4, 20, 0.01)
 print('\nRegularisation 0.1')
-run_multiclass_perceptron(train_data, split_train_data, split_test_data, 20, 0.1)
+run_multiclass_perceptron(train_dataset_q4, split_train_dataset_q4, split_test_dataset_q4, 20, 0.1)
 print('\nRegularisation 1.0')
-run_multiclass_perceptron(train_data, split_train_data, split_test_data, 20, 1.0)
+run_multiclass_perceptron(train_dataset_q4, split_train_dataset_q4, split_test_dataset_q4, 20, 1.0)
 print('\nRegularisation 10.0')
-run_multiclass_perceptron(train_data, split_train_data, split_test_data, 20, 10.0)
+run_multiclass_perceptron(train_dataset_q4, split_train_dataset_q4, split_test_dataset_q4, 20, 10.0)
 print('\nRegularisation 100.0')
-run_multiclass_perceptron(train_data, split_train_data, split_test_data, 20, 100.0)
+run_multiclass_perceptron(train_dataset_q4, split_train_dataset_q4, split_test_dataset_q4, 20, 100.0)
 
 
 
